@@ -5,9 +5,10 @@
 
 #include <Arduino.h>
 #include "Adafruit_TinyUSB.h"
+#include "version.h"
  
 // --- CONFIGURATION ---
-const String FIRMWARE_VERSION = "1.0";
+const String FIRMWARE_VERSION = VERSION;
 const int PPS_PIN = 2;       // Le fil PPS du GPS va sur GP2 (Pin 3)
 
 // Objet USB CDC standard
