@@ -25,8 +25,8 @@ This firmware transforms an RP2040 (Waveshare RP2040-Zero or Raspberry Pi Pico) 
 The internal RGB LED indicates the status of the GPS:
 * **Blue:** No data received from GPS (check wiring).
 * **Red:** GPS data received, but no satellite fix yet.
-* **Green:** GPS Fix acquired (Time is valid).
-* **White Flash:** PPS signal detected (Start of second).
+* **Green:** GPS Fix acquired, but PPS signal missing (> 5s).
+* **White Flash:** PPS signal detected (LED turns off between flashes when PPS is active).
 
 ### �️ Installation
 
@@ -70,8 +70,8 @@ Ce firmware transforme un RP2040 (Waveshare RP2040-Zero ou Raspberry Pi Pico) en
 La LED RGB interne indique l'état du GPS :
 * **Bleu :** Aucune donnée reçue du GPS (vérifier le câblage).
 * **Rouge :** Données GPS reçues, mais pas de fix satellite.
-* **Vert :** Fix GPS acquis (L'heure est valide).
-* **Flash Blanc :** Signal PPS détecté (Début de seconde).
+* **Vert :** Fix GPS acquis, mais signal PPS absent (> 5s).
+* **Flash Blanc :** Signal PPS détecté (La LED s'éteint entre les flashs quand le PPS est actif).
 
 ### 🛠️ Installation
 

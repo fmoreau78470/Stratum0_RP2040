@@ -151,7 +151,12 @@ void loop() {
         pixels.setPixelColor(0, pixels.Color(0, 0, 255));     // BLEU (Pas de data > 2s)
         gps_fix = false; // Perte présumée du fix si plus de data
     } else if (gps_fix) {
-        pixels.setPixelColor(0, pixels.Color(0, 255, 0));     // VERT (Fix OK)
+        if (now - pps_flash_time < 5000) {
+            // PPS Actif (< 5s) : On éteint la LED (seul le flash blanc est visible)
+            pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+        } else {
+            pixels.setPixelColor(0, pixels.Color(0, 255, 0)); // VERT (Fix OK, PPS Perdu/Absent)
+        }
     } else {
         pixels.setPixelColor(0, pixels.Color(255, 0, 0));     // ROUGE (Data OK, mais pas de Fix)
     }
