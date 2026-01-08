@@ -30,6 +30,11 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
         $newPatch = [int]$matches[3] + 1
         $Version = "$($matches[1]).$($matches[2]).$newPatch"
         Write-Host "Auto-incrémentation du firmware : $currentVersion -> $Version" -ForegroundColor Yellow
+    } elseif ($content -match '(?m)^\s*(\d+)\.(\d+)\.(\d+)\s*$') {
+        $currentVersion = "$($matches[1]).$($matches[2]).$($matches[3])"
+        $newPatch = [int]$matches[3] + 1
+        $Version = "$($matches[1]).$($matches[2]).$newPatch"
+        Write-Host "Réparation et incrémentation du fichier version.h malformé : $currentVersion -> $Version" -ForegroundColor Yellow
     } else {
         Write-Error "Impossible de lire la version actuelle depuis $versionHeaderPath pour l'incrémenter."
         exit 1
@@ -44,13 +49,9 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') {
 Write-Host "Mise à jour du firmware vers la version $Version..." -ForegroundColor Cyan
 
 # --- Mise à jour du fichier version.h ---
-$content = Get-Content $versionHeaderPath -Raw
-if ($content -match '(?m)^#define\s+VERSION\s+"') {
-    $content = $content -replace '(?m)^(\s*#define\s+VERSION\s+").*(")', "${1}$Version${2}"
-} else {
-    $content = '#pragma once' + [System.Environment]::NewLine + "#define VERSION `"$Version`""
-}
-Set-Content -Path $versionHeaderPath -Value $content
+# On écrase le fichier pour garantir le format correct et corriger toute corruption
+$newContent = '#pragma once' + [System.Environment]::NewLine + "#define VERSION `"$Version`""
+Set-Content -Path $versionHeaderPath -Value $newContent
 Write-Host "$versionHeaderPath mis à jour." -ForegroundColor Green
 
 Write-Host "Versionning du firmware terminé pour v$Version." -ForegroundColor Cyan
