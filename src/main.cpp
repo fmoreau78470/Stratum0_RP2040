@@ -7,6 +7,7 @@
 #include "Adafruit_TinyUSB.h"
  
 // --- CONFIGURATION ---
+const String FIRMWARE_VERSION = "1.0";
 const int PPS_PIN = 2;       // Le fil PPS du GPS va sur GP2 (Pin 3)
 
 // Objet USB CDC standard
@@ -89,7 +90,7 @@ void setup() {
 
     // Message de démarrage (comme dans main.py)
     // Attente optionnelle du port série
-    if (GpsUSB) GpsUSB.println("RP2040 Stratum 0 : Mode PPS Aligned (+1s fix)");
+    if (GpsUSB) GpsUSB.println("RP2040 Stratum 0 v" + FIRMWARE_VERSION + " : Mode PPS Aligned (+1s fix)");
 }
 
 void loop() {
