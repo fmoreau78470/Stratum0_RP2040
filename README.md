@@ -21,7 +21,14 @@ This firmware transforms an RP2040 (Waveshare RP2040-Zero or Raspberry Pi Pico) 
 * **"Time Adder" Algorithm:** Adds 1 second to the received NMEA sentence to compensate for GPS transmission latency and align with the next PPS pulse.
 * **USB CDC:** Communication via a native virtual serial port.
 
-### 🛠️ Installation
+### 💡 Diagnostic LED (RP2040-Zero)
+The internal RGB LED indicates the status of the GPS:
+* **Blue:** No data received from GPS (check wiring).
+* **Red:** GPS data received, but no satellite fix yet.
+* **Green:** GPS Fix acquired (Time is valid).
+* **White Flash:** PPS signal detected (Start of second).
+
+### �️ Installation
 
 1. Download the `Stratum0_vX.Y.Z.uf2` file from the Releases.
 2. Unplug your RP2040.
@@ -58,6 +65,13 @@ Ce firmware transforme un RP2040 (Waveshare RP2040-Zero ou Raspberry Pi Pico) en
 * **Synchronisation PPS :** Garantit que le PC reçoit l'heure au début exact de la seconde.
 * **Algorithme "Time Adder" :** Ajoute 1 seconde à la trame NMEA reçue pour compenser la latence de transmission du GPS et s'aligner sur le prochain top PPS.
 * **USB CDC :** Communication via port série virtuel natif.
+
+### 💡 LED de Diagnostic (RP2040-Zero)
+La LED RGB interne indique l'état du GPS :
+* **Bleu :** Aucune donnée reçue du GPS (vérifier le câblage).
+* **Rouge :** Données GPS reçues, mais pas de fix satellite.
+* **Vert :** Fix GPS acquis (L'heure est valide).
+* **Flash Blanc :** Signal PPS détecté (Début de seconde).
 
 ### 🛠️ Installation
 

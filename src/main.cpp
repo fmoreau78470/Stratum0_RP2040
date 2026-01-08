@@ -6,19 +6,27 @@
 #include <Arduino.h>
 #include "Adafruit_TinyUSB.h"
 #include "version.h"
+#include <Adafruit_NeoPixel.h>
  
 // --- CONFIGURATION ---
 const String FIRMWARE_VERSION = VERSION;
 const int PPS_PIN = 2;       // Le fil PPS du GPS va sur GP2 (Pin 3)
+const int LED_PIN = 16;      // LED RGB interne du RP2040-Zero
 
 // Objet USB CDC standard
 Adafruit_USBD_CDC GpsUSB;
+// Objet NeoPixel
+Adafruit_NeoPixel pixels(1, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 // --- VARIABLES GLOBALES ---
 volatile bool pps_detected = false;
 
 String inputBuffer = "";
 String lastRmc = "";
+
+bool gps_fix = false;           // État du Fix GPS (A=OK, V=Ko)
+unsigned long last_rx_time = 0; // Dernier moment où on a reçu des données
+unsigned long pps_flash_time = 0; // Pour gérer le flash de la LED
 
 // --- INTERRUPTIONS ---
 void on_pps_signal() {
@@ -38,6 +46,10 @@ String adjustRmc(String rmc) {
         p++;
     }
     
+    // Diagnostic : Vérification du statut (Champ 2, après la 2ème virgule)
+    // $GPRMC,HHMMSS.ss,A,...
+    if (rmc.charAt(commas[1] + 1) == 'A') gps_fix = true; else gps_fix = false;
+
     String sTime = rmc.substring(commas[0]+1, commas[1]);
     String sDate = rmc.substring(commas[8]+1, commas[9]);
     if (sTime.length() < 6 || sDate.length() < 6) return rmc;
@@ -89,6 +101,10 @@ void setup() {
     pinMode(PPS_PIN, INPUT);
     attachInterrupt(digitalPinToInterrupt(PPS_PIN), on_pps_signal, RISING);
 
+    // Init LED Diagnostic
+    pixels.begin();
+    pixels.setBrightness(30); // Luminosité modérée (max 255)
+
     // Message de démarrage (comme dans main.py)
     // Attente optionnelle du port série
     if (GpsUSB) GpsUSB.println("RP2040 Stratum 0 v" + FIRMWARE_VERSION + " : Mode PPS Aligned (+1s fix)");
@@ -98,6 +114,7 @@ void loop() {
     // 1. Lecture et Buffering du GPS
     while (Serial1.available()) {
         char c = Serial1.read();
+        last_rx_time = millis(); // On a reçu quelque chose
         inputBuffer += c;
         if (c == '\n') {
             // Fin de ligne détectée
@@ -116,6 +133,7 @@ void loop() {
     // 2. Gestion du PPS (Synchronisation)
     if (pps_detected) {
         pps_detected = false;
+        pps_flash_time = millis(); // Déclenche le flash visuel
         
         // Envoi de la trame RMC stockée (si disponible)
         if (lastRmc.length() > 0) {
@@ -123,4 +141,19 @@ void loop() {
             lastRmc = "";
         }
     }
+
+    // 3. Gestion de la LED de Diagnostic
+    unsigned long now = millis();
+    
+    if (now - pps_flash_time < 100) {
+        pixels.setPixelColor(0, pixels.Color(255, 255, 255)); // FLASH BLANC (PPS)
+    } else if (now - last_rx_time > 2000) {
+        pixels.setPixelColor(0, pixels.Color(0, 0, 255));     // BLEU (Pas de data > 2s)
+        gps_fix = false; // Perte présumée du fix si plus de data
+    } else if (gps_fix) {
+        pixels.setPixelColor(0, pixels.Color(0, 255, 0));     // VERT (Fix OK)
+    } else {
+        pixels.setPixelColor(0, pixels.Color(255, 0, 0));     // ROUGE (Data OK, mais pas de Fix)
+    }
+    pixels.show();
 }
